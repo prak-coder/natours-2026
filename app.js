@@ -4,6 +4,9 @@ const express = require('express');
 const app = express();
 const port = 3000;
 
+//middle ware
+app.use(express.json());
+
 // app.get('/', (req, res) => {
 //   res.status(200).json({ message: 'Hello from the server', app: 'natours' });
 // });
@@ -23,6 +26,27 @@ app.get('/api/v1/tours', (req, res) => {
       tours: tours,
     },
   });
+});
+
+//post req same url only method -post rest api rule
+
+app.post('/api/v1/tours', (req, res) => {
+  const newId = tours[tours.length - 1].id + 1;
+  // const newTour = Object.assign({ id: newId }, req.body);
+  const newTour = { ...req.body, id: newId };
+  tours.push(newTour);
+  fs.writeFile(
+    `${__dirname}/dev-data/data/tours-simple.json`,
+    JSON.stringify(tours),
+    (err) => {
+      res.status(201).json({
+        status: 'success',
+        data: {
+          tour: newTour,
+        },
+      });
+    },
+  );
 });
 
 app.listen(port, () => {
