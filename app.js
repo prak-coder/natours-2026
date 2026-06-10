@@ -1,12 +1,14 @@
 const fs = require('fs');
 const express = require('express');
+const morgan = require('morgan');
 
 const app = express();
 const port = 3000;
 
-//middle ware
+//1) MIDDLEWARE
 app.use(express.json());
 
+app.use(morgan('dev'));
 //own middleware
 app.use((req, res, next) => {
   console.log('Hello from Middle ware');
@@ -15,7 +17,7 @@ app.use((req, res, next) => {
 
 //another middle ware
 app.use((req, res, next) => {
-  req.RequestTime = new Date().toDateString();
+  req.RequestTime = new Date().toISOString();
   next();
 });
 
@@ -26,9 +28,12 @@ app.use((req, res, next) => {
 //   res.send('you can post at this end point..');
 // });
 
+//2)HANDLER FUNCTIONS
+
 const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`),
 );
+
 const getAllTours = (req, res) => {
   res.status(200).json({
     status: 'success',
@@ -102,6 +107,42 @@ const deleteTour = (req, res) => {
   }
 };
 
+const getAllUsers = (req, res) => {
+  res.status(500).json({
+    status: 'err',
+    message: 'this route is yet to be implemented',
+  });
+};
+
+const createUser = (req, res) => {
+  res.status(500).json({
+    status: 'err',
+    message: 'this route is yet to be implemented',
+  });
+};
+
+const getUser = (req, res) => {
+  res.status(500).json({
+    status: 'err',
+    message: 'this route is yet to be implemented',
+  });
+};
+
+const updateUser = (req, res) => {
+  res.status(500).json({
+    status: 'err',
+    message: 'this route is yet to be implemented',
+  });
+};
+
+const deleteUser = (req, res) => {
+  res.status(500).json({
+    status: 'err',
+    message: 'this route is yet to be implemented',
+  });
+};
+//3)ROUTES
+
 app.route('/api/v1/tours').get(getAllTours).post(createTour);
 app
   .route('/api/v1/tours/:id')
@@ -109,14 +150,14 @@ app
   .patch(updateTour)
   .delete(deleteTour);
 
-// app.get('/api/v1/tours', getAllTours);
-// //get one specific tour
-// app.get('/api/v1/tours/:id', postTour);
-// app.post('/api/v1/tours', createTour);
-// //patch req for update
-// app.patch('/api/v1/tours/:id', updateTour);
-// //delete req
-// app.delete('/api/v1/tours/:id', deleteTour);
+app.route('/api/v1/users').get(getAllUsers).post(createUser);
+app
+  .route('/api/v1/users/:id')
+  .get(getUser)
+  .patch(updateUser)
+  .delete(deleteUser);
+
+//4)START THE SERVER
 
 app.listen(port, () => {
   console.log(`App running on port ${port}`);
