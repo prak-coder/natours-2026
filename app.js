@@ -7,6 +7,18 @@ const port = 3000;
 //middle ware
 app.use(express.json());
 
+//own middleware
+app.use((req, res, next) => {
+  console.log('Hello from Middle ware');
+  next();
+});
+
+//another middle ware
+app.use((req, res, next) => {
+  req.RequestTime = new Date().toDateString();
+  next();
+});
+
 // app.get('/', (req, res) => {
 //   res.status(200).json({ message: 'Hello from the server', app: 'natours' });
 // });
@@ -20,6 +32,7 @@ const tours = JSON.parse(
 const getAllTours = (req, res) => {
   res.status(200).json({
     status: 'success',
+    requestAtTime: req.RequestTime,
     results: tours.length,
     data: {
       tours: tours,
