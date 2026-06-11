@@ -1,11 +1,10 @@
 const express = require('express');
+const app = express();
 
 const morgan = require('morgan');
 
 const tourRouter = require('./routes/tourRouter');
 const userRouter = require('./routes/userRouter');
-
-const app = express();
 
 //1) MIDDLEWARE
 app.use(express.json());
