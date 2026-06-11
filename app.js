@@ -7,8 +7,11 @@ const tourRouter = require('./routes/tourRouter');
 const userRouter = require('./routes/userRouter');
 
 //1) MIDDLEWARE
+
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
 app.use(express.json());
-app.use(morgan('dev'));
 
 //middle to serve static files
 app.use(express.static(`${__dirname}/public`));
