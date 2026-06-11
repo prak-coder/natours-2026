@@ -4,6 +4,17 @@ const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`),
 );
 
+//middle ware
+exports.checkBody = (req, res, next) => {
+  if (!req.body.name || !req.body.price) {
+    return res.status(400).json({
+      status: 'fail',
+      message: 'Tour should contain name and price',
+    });
+  }
+  next();
+};
+
 exports.checkId = (req, res, next, val) => {
   console.log(`tour id is ${val * 1}`);
   if (isNaN(val) || val < 0 || val * 1 >= tours.length) {
