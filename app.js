@@ -8,8 +8,10 @@ const userRouter = require('./routes/userRouter');
 
 //1) MIDDLEWARE
 app.use(express.json());
-
 app.use(morgan('dev'));
+
+//middle to serve static files
+app.use(express.static(`${__dirname}/public`));
 //own middleware
 app.use((req, res, next) => {
   console.log('Hello from Middle ware');
