@@ -6,7 +6,7 @@ const tours = JSON.parse(
 
 exports.checkId = (req, res, next, val) => {
   console.log(`tour id is ${val * 1}`);
-  if (val * 1 > tours.length) {
+  if (isNaN(val) || val < 0 || val * 1 >= tours.length) {
     return res.status(404).json({
       status: 'fail',
       message: 'Invalid Tour ID',
