@@ -8,8 +8,6 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 
 dotenv.config({ path: './config.env' });
-const { type } = require('node:os');
-const e = require('express');
 const app = require('./app');
 
 const DB = process.env.DATABASE.replace(
