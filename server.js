@@ -50,7 +50,7 @@ const Tour = mongoose.model('Tour', tourSchema);
 
 const testTour = new Tour({
   name: 'vellore tour test',
-  rating:5,
+  rating: 5,
   price: 500,
 });
 
