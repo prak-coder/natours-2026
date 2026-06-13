@@ -8,8 +8,7 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 
 dotenv.config({ path: './config.env' });
-const { type } = require('node:os');
-const e = require('express');
+
 const app = require('./app');
 
 const DB = process.env.DATABASE.replace(
@@ -50,8 +49,9 @@ const tourSchema = new mongoose.Schema({
 const Tour = mongoose.model('Tour', tourSchema);
 
 const testTour = new Tour({
-  name: 'The Park Camper',
-  price: 997,
+  name: 'vellore tour test',
+  rating:5,
+  price: 500,
 });
 
 testTour
