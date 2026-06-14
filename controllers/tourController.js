@@ -12,38 +12,41 @@ exports.getAllTours = async (req, res) => {
   });
 };
 
-exports.getTour = (req, res) => {
-  // const tourId = req.params.id * 1;
-  // const tour = tours.find((el) => el.id === tourId);
-  // res.status(200).json({
-  //   status: 'success',
-  //   data: {
-  //     tour,
-  //   },
-  // });
+exports.getTour = async (req, res) => {
+  try {
+    const tour = await Tour.findById(req.params.id);
+    res.status(200).json({
+      status: 'success',
+      data: {
+        tour,
+      },
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({
+      status: 'fail',
+      message: error,
+    });
+  }
 };
 
 //post req same url only method -post rest api rule
 exports.createTour = async (req, res) => {
-   try {
+  try {
     const newTour = await Tour.create(req.body);
-  res.status(201).json({
-    status: 'success',
-    data: {
-      tour: newTour,
-    },
-  });
-   } catch (error) {
+    res.status(201).json({
+      status: 'success',
+      data: {
+        tour: newTour,
+      },
+    });
+  } catch (error) {
     console.log(error);
     res.status(400).json({
-      status:'fail',
-      message:error
-    })
-    
-    
-   }
-
-  
+      status: 'fail',
+      message: error,
+    });
+  }
 };
 
 exports.updateTour = (req, res) => {
@@ -53,7 +56,6 @@ exports.updateTour = (req, res) => {
   // res.status(200).json({
   //   status: 'success',
   //   data: {
-
   //     tour: '<Updated tour here..>',
   //   },
   // });
