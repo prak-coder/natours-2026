@@ -1,7 +1,29 @@
 const Tour = require('../models/tourModel');
 
 exports.getAllTours = async (req, res) => {
-  const tours = await Tour.find();
+  // console.log(req.query);
+
+  const queryObj = { ...req.query };
+  const excludeFileds = ['page', 'sort', 'limit', 'fields'];
+  excludeFileds.forEach((el) => {
+    delete queryObj[el];
+  });
+  // console.log(queryObj);
+  // console.log(req.query);
+
+  //building the query object no db connection yet
+  const query = await Tour.find(queryObj);
+
+  // const tours = await Tour.find({ duration: 5, difficulty: 'easy' });
+  //   .where('duration')
+  //   .equals(5)
+  //   .where('difficulty')
+  //   .equals('easy');
+
+  //executing query..actual docu from db
+  const tours = await query;
+
+  //sending the response
   res.status(200).json({
     status: 'success',
     requestAtTime: req.RequestTime,
