@@ -5,63 +5,11 @@ exports.aliasTopTours = async (req, res, next) => {
   req.query.limit = '5';
   req.query.sort = '-ratingsAverage,price';
   req.query.fields = 'name,price,ratingsAverage,summary,difficulty';
-  console.log(req.query);
   next();
 };
 
 exports.getAllTours = async (req, res) => {
   try {
-    // console.log(req.query);
-
-    // const queryObj = { ...req.query };
-    // const excludeFileds = ['page', 'sort', 'limit', 'fields'];
-    // excludeFileds.forEach((el) => {
-    //   delete queryObj[el];
-    // });
-    // let queryStr = JSON.stringify(queryObj);
-    // queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
-    // console.log(queryObj);
-    // console.log(JSON.parse(queryStr));
-
-    // console.log(req.query);
-
-    //building the query object no db connection yet
-    // let query = Tour.find(JSON.parse(queryStr));
-
-    // const tours = await Tour.find({ duration: 5, difficulty: 'easy' });
-    //   .where('duration')
-    //   .equals(5)
-    //   .where('difficulty')
-    //   .equals('easy');
-
-    //sorting
-    // if (req.query.sort) {
-    //   const sortBy = req.query.sort.split(',').join(' ');
-    //   query = query.sort(sortBy);
-    // } else {
-    //   query = query.sort('-createdAt');
-    // }
-
-    //fields limiting
-    // if (req.query.fields) {
-    //   const fields = req.query.fields.split(',').join(' ');
-    //   query = query.select(fields);
-    // } else {
-    //   query = query.select('-__v');
-    // }
-
-    // page limiting
-    // const page = req.query.page * 1 || 1; // default value of 1
-    // const limit = req.query.limit * 1 || 100; // default value of 1
-    // const skip = (page - 1) * limit;
-
-    // query = query.skip(skip).limit(limit);
-
-    // if (req.query.page) {
-    //   const numofTours = await Tour.countDocuments();
-    //   if (skip >= numofTours) throw new Error('This page doesnot exist');
-    // }
-
     //using a apifeatures obj to create inst bcs can be reused for any resource(user,review etc)
     const features = new APIFeatures(Tour.find(), req.query)
       .filter()
