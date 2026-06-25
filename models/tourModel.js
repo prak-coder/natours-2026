@@ -1,4 +1,7 @@
+/* eslint-disable prefer-arrow-callback */
 const mongoose = require('mongoose');
+
+const slugify = require('slugify');
 
 const tourSchema = new mongoose.Schema(
   {
@@ -8,6 +11,7 @@ const tourSchema = new mongoose.Schema(
       unique: true,
       trim: true,
     },
+    slug: String,
     duration: {
       type: Number,
       required: [true, 'A tour should have duration'],
@@ -60,6 +64,22 @@ const tourSchema = new mongoose.Schema(
 tourSchema.virtual('durationinweeks').get(function () {
   return this.duration / 7;
 });
+//document middleware only work for save and create mongodb method not insert/update
+tourSchema.pre('save', function (next) {
+  this.slug = slugify(this.name, { lower: true });
+  next();
+});
+//can have mutiple middlewares
+// tourSchema.pre('save', (next) => {
+//   console.log('will run before save');
+//   next();
+// });
+
+tourSchema.post('save', function (doc, next) {
+  console.log(doc);
+  next();
+});
+
 const Tour = mongoose.model('Tour', tourSchema);
 
 module.exports = Tour;
