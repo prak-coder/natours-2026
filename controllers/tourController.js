@@ -11,6 +11,7 @@ exports.aliasTopTours = async (req, res, next) => {
 exports.getAllTours = async (req, res) => {
   try {
     //using a apifeatures obj to create inst bcs can be reused for any resource(user,review etc)
+    console.log(req.query);
     const features = new APIFeatures(Tour.find(), req.query)
       .filter()
       .sort()
