@@ -44,9 +44,23 @@ app.use('/api/v1/users', userRouter);
 
 //routes that doesnot match any of previous routes for all methods get put patch delete
 app.all('*', (req, res, next) => {
-  res.status(404).json({
-    status: 'fail',
-    message: `cant find the ${req.originalUrl} on this server`,
+  // res.status(404).json({
+  //   status: 'fail',
+  //   message: `cant find the ${req.originalUrl} on this server`,
+  // });
+  const err = new Error(`cant find the ${req.originalUrl} on this server`);
+  err.status = 'fail';
+  err.statusCode = 404;
+  next(err);
+});
+
+//Global Error handling middleware
+app.use((err, req, res, next) => {
+  err.status = err.status || 'error';
+  err.statusCode = err.statusCode || 500;
+  res.status(err.statusCode).json({
+    status: err.status,
+    message: err.message,
   });
   next();
 });
