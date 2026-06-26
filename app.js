@@ -43,12 +43,12 @@ app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 
 //routes that doesnot match any of previous routes for all methods get put patch delete
-// app.all('*', (req, res, next) => {
-//   res.status(404).json({
-//     status: 'fail',
-//     message: `cant find the ${req.originalUrl} on this server`,
-//   });
-//   next();
-// });
+app.all('*', (req, res, next) => {
+  res.status(404).json({
+    status: 'fail',
+    message: `cant find the ${req.originalUrl} on this server`,
+  });
+  next();
+});
 
 module.exports = app;
