@@ -1,10 +1,26 @@
 const AppError = require('../utils/appError');
 
-const handleCastErrorDB = (error) => {
-  const message = `Invalid ${error.path} : ${error.value}`;
+const handleCastErrorDB = (err) => {
+  const message = `Invalid ${err.path} : ${err.value}`;
   return new AppError(message, 404);
 };
 
+const handleDuplicateFieldsDB = (err) => {
+  // 1. Safe regex match execution
+  const match = err.message.match(/(["'])(\\?.)*?\1/);
+
+  // 2. Fallback to empty string if no match is found, otherwise strip quotes
+  const value = match ? match[0] : '';
+  const message = `duplicate field value: ${value}. Please use another value`;
+  return new AppError(message, 404);
+};
+
+const handleValidationErrorDB = (err) => {
+  const errors = Object.values(err.errors).map((el) => el.message);
+  console.log(errors);
+  const message = `invalid input data. ${errors.join('. ')}`;
+  return new AppError(message, 404);
+};
 const sendErrorDev = (err, res) => {
   res.status(err.statusCode).json({
     status: err.status,
@@ -43,7 +59,12 @@ module.exports = (err, req, res, next) => {
     sendErrorDev(err, res);
   } else if (process.env.NODE_ENV === 'production') {
     let error = { ...err }; //shallow copy Properties such as name, message, and stack are configured as non-enumerable
+    error.name = err.name;
+    error.message = err.message;
+
     if (err.name === 'CastError') error = handleCastErrorDB(error);
+    if (err.code === 11000) error = handleDuplicateFieldsDB(error);
+    if (err.name === 'ValidationError') error = handleValidationErrorDB(error);
 
     sendErrorProd(error, res);
   }
