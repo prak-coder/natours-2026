@@ -3,7 +3,14 @@ const dns = require('node:dns');
 dns.setServers(['1.1.1.1', '8.8.8.8']);
 //Many local ISP routers or default network setups cannot parse
 //  or handle complex SRV lookups correctly.
+
 const mongoose = require('mongoose');
+
+process.on('uncaughtException', (err) => {
+  console.log(err.name, err.message);
+  console.log('UNCAUGHT EXCEPTION.🧨 Shutting down');
+  process.exit(1);
+});
 
 const dotenv = require('dotenv');
 
