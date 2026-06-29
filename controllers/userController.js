@@ -1,4 +1,4 @@
-exports.getAllUsers = (req, res) => {
+exports.getAllUsers = async (req, res) => {
   res.status(500).json({
     status: 'err',
     message: 'this route is yet to be implemented',
