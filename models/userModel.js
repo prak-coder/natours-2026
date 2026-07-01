@@ -2,6 +2,8 @@ const mongoose = require('mongoose');
 
 const validator = require('validator');
 
+const bcrypt = require('bcryptjs');
+
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -33,6 +35,16 @@ const userSchema = new mongoose.Schema({
       message: 'Passwords doesnot match',
     },
   },
+});
+
+userSchema.pre('save', async function (next) {
+  //if password not  Modified simply return
+  if (!this.isModified('password')) return;
+  //encrypt password to string with cost of 12
+  this.password = await bcrypt.hash(this.password, 12);
+  //delete passwordConfirm field
+  this.passwordConfirm = undefined;
+  next();
 });
 
 const User = mongoose.model('User', userSchema);
