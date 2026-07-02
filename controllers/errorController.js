@@ -22,6 +22,7 @@ const handleValidationErrorDB = (err) => {
   return new AppError(message, 404);
 };
 
+// eslint-disable-next-line no-unused-vars
 const handleJWTError = (err) =>
   new AppError('Invalid token Please login again', 401);
 
