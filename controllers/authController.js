@@ -25,7 +25,6 @@ exports.signup = catchAsync(async (req, res, next) => {
     token,
     data: newUser,
   });
-  next();
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -85,3 +84,15 @@ exports.protect = catchAsync(async (req, res, next) => {
   req.user = currentUser;
   next();
 });
+// eslint-disable-next-line arrow-body-style
+exports.restrictTo = (...roles) => {
+  return (req, res, next) => {
+    //roles=['admin','lead-guide']
+    console.log(req.user);
+    console.log(roles);
+    if (!roles.includes(req.user.role)) {
+      return next(new AppError('you dont have permission to this route', 403));
+    }
+    next();
+  };
+};
