@@ -1,3 +1,5 @@
+const crypto = require('crypto');
+
 const { promisify } = require('util');
 
 const jwt = require('jsonwebtoken');
@@ -124,7 +126,6 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
       message: 'Token sent to email!',
     });
   } catch (error) {
-    console.log('THE REAL EMAIL ERROR IS:', error);
     user.passwordResetToken = undefined;
     user.passwordResetExpires = undefined;
     await user.save({ validateBeforeSave: false });
@@ -136,6 +137,36 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
     );
   }
 });
-// exports.resetPassword = catchAsync(async (req, res, next) => {
-//   next();
-// });
+exports.resetPassword = catchAsync(async (req, res, next) => {
+  //1.get resetToken from req.params.token
+  const resetToken = req.params.token;
+
+  const hashedToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+
+  const user = await User.findOne({
+    passwordResetToken: hashedToken,
+    passwordResetExpires: { $gt: Date.now() },
+  });
+
+  if (!user) {
+    return next(new AppError('invalid token or token has expired', 400));
+  }
+  //2.set password and passwordConfirm from user and use register/login func?
+  user.password = req.body.password;
+  user.passwordConfirm = req.body.passwordConfirm;
+  //delete these values in db
+  user.passwordResetToken = undefined;
+  user.passwordResetExpires = undefined;
+  await user.save();
+
+  // your  password hasbeen reset successfully
+  const token = signToken(user._id);
+
+  res.status(200).json({
+    status: 'success',
+    token,
+  });
+});

@@ -56,6 +56,11 @@ userSchema.pre('save', async function (next) {
   this.passwordConfirm = undefined;
   next();
 });
+userSchema.pre('save', function (next) {
+  if (!this.isModified('password') || this.isNew) return next();
+  this.passwordChangeAt = Date.now() - 1000;
+  next();
+});
 userSchema.methods.correctPassword = async function (
   canditatePassword,
   userPassword,
@@ -87,6 +92,8 @@ userSchema.methods.createPasswordResetToken = function () {
   this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
   return resetToken;
 };
+
+// };
 const User = mongoose.model('User', userSchema);
 
 module.exports = User;
