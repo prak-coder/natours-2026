@@ -4,6 +4,14 @@ const catchAsync = require('../utils/catchAsync');
 
 const AppError = require('../utils/appError');
 
+const filterObj = (obj, ...allowedFields) => {
+  const newObj = {};
+  Object.keys(obj).forEach((el) => {
+    if (allowedFields.includes(el)) newObj[el] = obj[el];
+  });
+  return newObj;
+};
+
 exports.getAllUsers = catchAsync(async (req, res, next) => {
   const users = await User.find();
 
@@ -25,16 +33,29 @@ exports.createUser = (req, res) => {
   });
 };
 //update me seperate route bcs used by logged in user to update username and email not password
-exports.updateMe = (req, res, next) => {
+exports.updateMe = catchAsync(async (req, res, next) => {
   //1.create error if user posted password data
+  console.log(req.body);
   if (req.body.password || req.body.passwordConfirm) {
     return next(
       new AppError('this route is not for password use updateMyPassword'),
     );
   }
   //2.update user document
-  next();
-};
+  //white listing bcs no want user to change role='admin'
+  const filterBody = filterObj(req.body, 'name', 'email');
+  const updatedUser = await User.findByIdAndUpdate(req.user.id, filterBody, {
+    new: true,
+    runValidators: true,
+  });
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      user: updatedUser,
+    },
+  });
+});
 
 exports.getUser = (req, res) => {
   res.status(500).json({
