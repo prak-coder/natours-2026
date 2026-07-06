@@ -16,6 +16,17 @@ const signToken = (id) =>
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 
+const createSendToken = (user, statusCode, res) => {
+  const token = signToken(user._id);
+  res.status(statusCode).json({
+    status: 'success',
+    token,
+    data: {
+      user,
+    },
+  });
+};
+
 exports.signup = catchAsync(async (req, res, next) => {
   const newUser = await User.create({
     name: req.body.name,
@@ -23,12 +34,13 @@ exports.signup = catchAsync(async (req, res, next) => {
     password: req.body.password,
     passwordConfirm: req.body.passwordConfirm,
   });
-  const token = signToken(newUser._id);
-  res.status(201).json({
-    status: 'success',
-    token,
-    data: newUser,
-  });
+  createSendToken(newUser, 201, res);
+  // const token = signToken(newUser._id);
+  // res.status(201).json({
+  //   status: 'success',
+  //   token,
+  //   data: newUser,
+  // });
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -44,13 +56,14 @@ exports.login = catchAsync(async (req, res, next) => {
     return next(new AppError('Incorrect email or password', 401));
   }
 
-  //3.if everything ok send token to client
-  const token = signToken(user._id);
+  createSendToken(user, 200, res);
+  // //3.if everything ok send token to client
+  // const token = signToken(user._id);
 
-  res.status(200).json({
-    status: 'success',
-    token,
-  });
+  // res.status(200).json({
+  //   status: 'success',
+  //   token,
+  // });
 });
 
 exports.protect = catchAsync(async (req, res, next) => {
@@ -88,6 +101,7 @@ exports.protect = catchAsync(async (req, res, next) => {
   req.user = currentUser;
   next();
 });
+
 // eslint-disable-next-line arrow-body-style
 exports.restrictTo = (...roles) => {
   return (req, res, next) => {
@@ -163,18 +177,42 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   await user.save();
 
   // your  password hasbeen reset successfully
-  const token = signToken(user._id);
+  createSendToken(user, 200, res);
 
-  res.status(200).json({
-    status: 'success',
-    token,
-  });
+  // const token = signToken(user._id);
+
+  // res.status(200).json({
+  //   status: 'success',
+  //   token,
+  // });
 });
 
-exports.updatePassword = catchAsync((req, res, next) => {
+exports.updatePassword = catchAsync(async (req, res, next) => {
   //1.get user from the collection
+  // const user = await User.findById(req.user.id).select('+password');
+  const user = await User.findById(req.user.id).select('+password');
+  //findByIdandupdate wont work bcs of 'save' middleware validators
   //2.check if posted current password is correct
-  //3.if so update password
+  const { currentPassword, newPassword, confirmPassword } = req.body;
+  // if (newPassword !== confirmPassword) {
+  //   return next(new AppError('password doesnot match'), 201);
+  // }
+  const isCorrect = await user.correctPassword(currentPassword, user.password);
+  if (isCorrect) {
+    //3.if so update password
+    user.password = newPassword;
+    user.passwordConfirm = confirmPassword;
+    await user.save();
+  } else {
+    return next(new AppError('incorrect password ', 401));
+  }
   //4.login user send jwt token
-  next();
+  createSendToken(user, 200, res);
+
+  // const token = signToken(user._id);
+
+  // res.status(200).json({
+  //   status: 'success',
+  //   token,
+  // });
 });
