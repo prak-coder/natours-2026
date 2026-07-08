@@ -8,6 +8,9 @@ const rateLimit = require('express-rate-limit');
 
 const helmet = require('helmet');
 
+const mongoSanitize = require('express-mongo-sanitize');
+const xss = require('xss-clean');
+
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 const tourRouter = require('./routes/tourRouter');
@@ -25,6 +28,10 @@ if (process.env.NODE_ENV === 'development') {
 //limit body to 10kb
 app.use(express.json({ limit: '10kb' }));
 
+//Data sanitization against no SQL query injection
+app.use(mongoSanitize());
+///Data sanitization against XSS
+app.use(xss());
 //middle to serve static files
 app.use(express.static(`${__dirname}/public`));
 
@@ -46,12 +53,6 @@ const limiter = rateLimit({
   message: 'Too many request from this IP.Please try again after an hour',
 });
 app.use('/api', limiter);
-// app.get('/', (req, res) => {
-//   res.status(200).json({ message: 'Hello from the server', app: 'natours' });
-// });
-// app.post('/', (req, res) => {
-//   res.send('you can post at this end point..');
-// });
 
 //2)HANDLER FUNCTIONS
 
