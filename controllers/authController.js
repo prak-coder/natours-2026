@@ -39,14 +39,14 @@ const createSendToken = (user, statusCode, res) => {
 };
 
 exports.signup = catchAsync(async (req, res, next) => {
-  let role = req.body.role || 'user';
-  if (role === 'admin') role = 'user';
+  // let role = req.body.role || 'user';
+  // if (role === 'admin') role = 'user';
   const newUser = await User.create({
     name: req.body.name,
     email: req.body.email,
     password: req.body.password,
     passwordConfirm: req.body.passwordConfirm,
-    role: role,
+    // role: role,
   });
 
   createSendToken(newUser, 201, res);
