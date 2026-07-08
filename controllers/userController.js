@@ -35,7 +35,6 @@ exports.createUser = (req, res) => {
 //update me seperate route bcs used by logged in user to update username and email not password
 exports.updateMe = catchAsync(async (req, res, next) => {
   //1.create error if user posted password data
-  console.log(req.body);
   if (req.body.password || req.body.passwordConfirm) {
     return next(
       new AppError('this route is not for password use updateMyPassword'),
@@ -54,6 +53,15 @@ exports.updateMe = catchAsync(async (req, res, next) => {
     data: {
       user: updatedUser,
     },
+  });
+});
+
+//delete current user update active field to false
+exports.deleteMe = catchAsync(async (req, res, next) => {
+  await User.findByIdAndUpdate(req.user.id, { active: false });
+  res.status(200).json({
+    status: 'success',
+    data: null,
   });
 });
 
