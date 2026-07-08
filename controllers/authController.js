@@ -18,6 +18,17 @@ const signToken = (id) =>
 
 const createSendToken = (user, statusCode, res) => {
   const token = signToken(user._id);
+  const cookieOptions = {
+    expires: new Date(
+      Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000,
+    ),
+    httpOnly: true,
+  };
+  if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
+  res.cookie('jwt', token, cookieOptions);
+
+  //remove password in output
+  user.password = undefined;
   res.status(statusCode).json({
     status: 'success',
     token,
@@ -28,12 +39,16 @@ const createSendToken = (user, statusCode, res) => {
 };
 
 exports.signup = catchAsync(async (req, res, next) => {
+  let role = req.body.role || 'user';
+  if (role === 'admin') role = 'user';
   const newUser = await User.create({
     name: req.body.name,
     email: req.body.email,
     password: req.body.password,
     passwordConfirm: req.body.passwordConfirm,
+    role: role,
   });
+
   createSendToken(newUser, 201, res);
   // const token = signToken(newUser._id);
   // res.status(201).json({
