@@ -121,6 +121,12 @@ const tourSchema = new mongoose.Schema(
 tourSchema.virtual('durationinweeks').get(function () {
   return this.duration / 7;
 });
+//virtual populate tour with reviews
+tourSchema.virtual('reviews', {
+  ref: 'Review',
+  foreignField: 'tour',
+  localField: '_id',
+});
 //document middleware only work for save and create mongodb method not insert/update
 tourSchema.pre('save', function (next) {
   this.slug = slugify(this.name, { lower: true });

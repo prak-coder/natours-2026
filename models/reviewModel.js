@@ -35,9 +35,6 @@ const reviewSchema = new mongoose.Schema(
 reviewSchema.pre(/^find/, function (next) {
   // eslint-disable-next-line no-unused-expressions
   this.populate({
-    path: 'tour',
-    select: 'name ',
-  }).populate({
     path: 'user',
     select: 'name photo',
   });
