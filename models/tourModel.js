@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 
 const slugify = require('slugify');
 
-const User = require('./userModel');
+// const User = require('./userModel');
 
 // const validator = require('validator');
 
@@ -111,7 +111,7 @@ const tourSchema = new mongoose.Schema(
         day: Number,
       },
     ],
-    guides: Array,
+    guides: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
   },
   {
     toJSON: { virtuals: true },
@@ -127,13 +127,13 @@ tourSchema.pre('save', function (next) {
   next();
 });
 
-tourSchema.pre('save', async function (next) {
-  //console.log(this); this refer to document
-  // eslint-disable-next-line no-return-await
-  const guidesPromises = this.guides.map(async (id) => await User.findById(id));
-  this.guides = await Promise.all(guidesPromises);
-  next();
-});
+// tourSchema.pre('save', async function (next) {
+//   //console.log(this); this refer to document
+//   // eslint-disable-next-line no-return-await
+//   const guidesPromises = this.guides.map(async (id) => await User.findById(id));
+//   this.guides = await Promise.all(guidesPromises);
+//   next();
+// });
 
 //can have mutiple middlewares
 // tourSchema.pre('save', (next) => {
@@ -147,6 +147,14 @@ tourSchema.pre('save', async function (next) {
 // });
 
 // Query middleware
+
+tourSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: 'guides',
+    select: '-v -passwordChangeAt',
+  });
+  next();
+});
 tourSchema.pre(/^find/, function (next) {
   this.find({ secretTour: { $ne: true } });
   this.start = Date.now();
