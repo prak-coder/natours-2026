@@ -12,6 +12,7 @@ const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 const tourRouter = require('./routes/tourRouter');
 const userRouter = require('./routes/userRouter');
+const reviewRouter = require('./routes/reviewRouter');
 
 //1)Global MIDDLEWARE
 //set security headers
@@ -70,7 +71,7 @@ app.use('/api', limiter);
 
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
-
+app.use('/api/v1/reviews', reviewRouter);
 //routes that doesnot match any of previous routes for all methods get put patch delete
 app.all('*', (req, res, next) => {
   next(new AppError(`cant find the ${req.originalUrl} on this server`, 404));
