@@ -6,7 +6,7 @@ const reviewController = require('../controllers/reviewController');
 
 // const userController = require('../controllers/userController');
 
-// const authController = require('../controllers/authController');
+const authController = require('../controllers/authController');
 
 // router.post('/signup', authController.signup);
 // router.post('/login', authController.login);
@@ -26,7 +26,11 @@ const reviewController = require('../controllers/reviewController');
 router
   .route('/')
   .get(reviewController.getAllReviews)
-  .post(reviewController.createReview);
+  .post(
+    authController.protect,
+    authController.restrictTo('user'),
+    reviewController.createReview,
+  );
 // router.route('/:id');
 //   .get(reviewController.getReview)
 //   .patch(reviewController.updateReview)
