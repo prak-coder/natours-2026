@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 
 const slugify = require('slugify');
 
+// const User = require('./userModel');
+
 // const validator = require('validator');
 
 const tourSchema = new mongoose.Schema(
@@ -85,6 +87,29 @@ const tourSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    startLocations: {
+      type: {
+        type: String,
+        default: 'Point',
+        enum: ['Point'],
+      },
+      coordinates: [Number],
+      address: String,
+      description: String,
+    },
+    locations: [
+      {
+        type: {
+          type: String,
+          default: 'Point',
+          enum: ['Point'],
+        },
+        coordinates: [Number],
+        address: String,
+        description: String,
+        day: Number,
+      },
+    ],
   },
   {
     toJSON: { virtuals: true },
@@ -99,6 +124,12 @@ tourSchema.pre('save', function (next) {
   this.slug = slugify(this.name, { lower: true });
   next();
 });
+
+// tourSchema.pre('save', function (next) {
+//   console.log(this);
+//   next();
+// });
+
 //can have mutiple middlewares
 // tourSchema.pre('save', (next) => {
 //   console.log('will run before save');
