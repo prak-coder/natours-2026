@@ -6,6 +6,8 @@ const authController = require('../controllers/authController');
 
 const tourController = require('../controllers/tourController');
 
+const reviewController = require('../controllers/reviewController');
+
 //param middleware
 // router.param('id', tourController.checkId);
 
@@ -28,6 +30,17 @@ router
     authController.protect,
     authController.restrictTo('admin', 'lead-guide'),
     tourController.deleteTour,
+  );
+// nested route
+//post /tour/234fad4/reviews
+//get /tour/25546/reviews
+///get /tour/25546/reviews/1546 specific review
+router
+  .route('/:tourId/reviews')
+  .post(
+    authController.protect,
+    authController.restrictTo('user'),
+    reviewController.createReview,
   );
 
 module.exports = router;
