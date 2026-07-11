@@ -14,24 +14,10 @@ const filterObj = (obj, ...allowedFields) => {
   return newObj;
 };
 
-exports.getAllUsers = catchAsync(async (req, res, next) => {
-  const users = await User.find();
-
-  //sending the response
-  res.status(200).json({
-    status: 'success',
-    requestAtTime: req.RequestTime,
-    results: users.length,
-    data: {
-      users,
-    },
-  });
-});
-
 exports.createUser = (req, res) => {
   res.status(500).json({
     status: 'err',
-    message: 'this route is yet to be implemented',
+    message: 'this route is yet to be implemeted please use /signup instead',
   });
 };
 //update me seperate route bcs used by logged in user to update username and email not password
@@ -67,14 +53,8 @@ exports.deleteMe = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.getUser = (req, res) => {
-  res.status(500).json({
-    status: 'err',
-    message: 'this route is yet to be implemented',
-  });
-};
-
+exports.getAllUsers = factory.getAll(User);
+exports.getUser = factory.getOne(User);
 //do not update password with this
 exports.updateUser = factory.updateOne(User);
-
 exports.deleteUser = factory.deleteOne(User);

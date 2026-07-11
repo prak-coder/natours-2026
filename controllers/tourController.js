@@ -1,8 +1,6 @@
 const Tour = require('../models/tourModel');
-const APIFeatures = require('../utils/apiFeatures');
 
 const catchAsync = require('../utils/catchAsync');
-const AppError = require('../utils/appError');
 
 const factory = require('./handleFactory');
 
@@ -13,42 +11,8 @@ exports.aliasTopTours = async (req, res, next) => {
   next();
 };
 
-exports.getAllTours = catchAsync(async (req, res, next) => {
-  //using a apifeatures obj to create inst bcs can be reused for any resource(user,review etc)
-  // console.log(req.query);
-  const features = new APIFeatures(Tour.find(), req.query)
-    .filter()
-    .sort()
-    .limitFields()
-    .paginate();
-
-  //executing query..actual docu from db
-  const tours = await features.query;
-
-  //sending the response
-  res.status(200).json({
-    status: 'success',
-    requestAtTime: req.RequestTime,
-    results: tours.length,
-    data: {
-      tours: tours,
-    },
-  });
-});
-
-exports.getTour = catchAsync(async (req, res, next) => {
-  const tour = await Tour.findById(req.params.id).populate('reviews');
-  if (!tour) {
-    return next(new AppError('No tour with that id', 404));
-  }
-  res.status(200).json({
-    status: 'success',
-    data: {
-      tour,
-    },
-  });
-});
-
+exports.getAllTours = factory.getAll(Tour);
+exports.getTour = factory.getOne(Tour, { path: 'reviews' });
 //post req same url only method -post rest api rule
 exports.createTour = factory.createOne(Tour);
 exports.updateTour = factory.updateOne(Tour);
