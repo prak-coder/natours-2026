@@ -6,6 +6,8 @@ const reviewController = require('../controllers/reviewController');
 
 const authController = require('../controllers/authController');
 
+//post tours/2554626/reviews
+//get tours/2554626/reviews all reviews for the tour
 router
   .route('/')
   .get(reviewController.getAllReviews)
