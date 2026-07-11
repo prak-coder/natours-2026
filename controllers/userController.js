@@ -74,11 +74,7 @@ exports.getUser = (req, res) => {
   });
 };
 
-exports.updateUser = (req, res) => {
-  res.status(500).json({
-    status: 'err',
-    message: 'this route is yet to be implemented',
-  });
-};
+//do not update password with this
+exports.updateUser = factory.updateOne(User);
 
 exports.deleteUser = factory.deleteOne(User);
