@@ -76,7 +76,7 @@ exports.getAll = (Model) =>
       .paginate();
 
     //executing query..actual docu from db
-    const doc = await features.query;
+    const doc = await features.query.explain();
 
     //sending the response
     res.status(200).json({
