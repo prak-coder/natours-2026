@@ -42,15 +42,15 @@ const tourSchema = new mongoose.Schema(
           'only values of easy medium difficult are accepted for difficulty',
       },
     },
-    ratingsAverage: {
-      type: Number,
-      default: 0,
-      max: [5, 'ratingsAverage should be 5.0 or below'],
-      min: [1, 'ratingsAverage should be 1.0 or above'],
-    },
     ratingsQuantity: {
       type: Number,
+      default: 0,
+    },
+    ratingsAverage: {
+      type: Number,
       default: 4.5,
+      min: [1, 'Rating must be above 1.0'],
+      max: [5, 'Rating must be below 5.0'],
     },
     price: {
       type: Number,
@@ -187,17 +187,3 @@ tourSchema.pre('aggregate', function (next) {
 const Tour = mongoose.model('Tour', tourSchema);
 
 module.exports = Tour;
-// const testTour = new Tour({
-//   name: 'vellore tour test',
-//   rating: 5,
-//   price: 500,
-// });
-
-// testTour
-//   .save()
-//   .then((data) => {
-//     console.log(data);
-//   })
-//   .catch((err) => {
-//     console.log('Error 🧨 ', err);
-//   });
