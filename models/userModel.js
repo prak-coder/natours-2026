@@ -66,6 +66,7 @@ userSchema.pre('save', function (next) {
   this.passwordChangeAt = Date.now() - 1000;
   next();
 });
+
 //query midlleware to not show inactive user details
 userSchema.pre(/^find/, function (next) {
   //this points to query
