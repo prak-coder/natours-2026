@@ -57,10 +57,12 @@ reviewSchema.statics.calcAverageRatings = async function (tourId) {
       },
     },
   ]);
-  await Tour.findByIdAndUpdate(tourId, {
-    ratingsQuantity: stats[0].numRatings,
-    ratingsAverage: stats[0].avgRatings,
-  });
+  if (stats.length > 0) {
+    await Tour.findByIdAndUpdate(tourId, {
+      ratingsQuantity: stats[0].numRatings,
+      ratingsAverage: stats[0].avgRatings,
+    });
+  }
 };
 
 //when new review is added calc revQuan and revavg
