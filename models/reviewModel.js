@@ -34,6 +34,10 @@ const reviewSchema = new mongoose.Schema(
     toObject: { virtuals: true },
   },
 );
+
+// Each user can only write one review per tour
+reviewSchema.index({ tour: 1, user: 1 }, { unique: true });
+
 reviewSchema.pre(/^find/, function (next) {
   // eslint-disable-next-line no-unused-expressions
   this.populate({
