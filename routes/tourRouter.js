@@ -33,6 +33,10 @@ router
   .route('/tours-within/distance/:distance/latlng/:latlng/unit/:unit')
   .get(tourController.getToursWithin);
 //tours/tours-within/distance/400/latlng/34.116552,-118.225324/unit/mi
+
+router
+  .route('/distances/latlng/:latlng/unit/:unit')
+  .get(tourController.getDistances);
 router
   .route('/')
   .get(tourController.getAllTours)
