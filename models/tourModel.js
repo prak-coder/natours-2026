@@ -88,7 +88,7 @@ const tourSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    startLocations: {
+    startLocation: {
       //geo Json
       type: {
         type: String,
@@ -123,6 +123,7 @@ const tourSchema = new mongoose.Schema(
 // tourSchema.index({ price: 1 });
 tourSchema.index({ price: 1, ratingsAverage: -1 });
 tourSchema.index({ slug: 1 });
+tourSchema.index({ startLocation: '2dsphere' });
 
 tourSchema.virtual('durationinweeks').get(function () {
   return this.duration / 7;
