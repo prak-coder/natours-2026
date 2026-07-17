@@ -22,6 +22,9 @@ exports.createUser = (req, res) => {
 };
 //update me seperate route bcs used by logged in user to update username and email not password
 exports.updateMe = catchAsync(async (req, res, next) => {
+  console.log(req.file);
+  console.log(req.body);
+
   //1.create error if user posted password data
   if (req.body.password || req.body.passwordConfirm) {
     return next(
