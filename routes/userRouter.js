@@ -18,6 +18,7 @@ router.patch('/updateMyPassword', authController.updatePassword);
 router.patch(
   '/updateMe',
   userController.updateUserPhoto,
+  userController.resizeUserPhoto,
   userController.updateMe,
 );
 router.delete('/deleteMe', userController.deleteMe);
