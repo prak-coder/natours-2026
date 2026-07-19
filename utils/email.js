@@ -1,5 +1,13 @@
 const nodemailer = require('nodemailer');
 
+//new Email(user,url).sendWelcome()
+
+// module.exports = class Email {
+//   constructor(user, url) {
+//     this.to = user.email,
+//     this.firstName = user.name.split(' ')[0],
+//   }
+// };
 const sendEmail = async (options) => {
   //1.Create a transporter - Configure your SMTP server or another supported transport method.
   const transporter = nodemailer.createTransport({
@@ -25,5 +33,4 @@ const sendEmail = async (options) => {
   //3.Send the email - Call transporter.sendMail() with your message options.
   await transporter.sendMail(mailOptions);
 };
-
 module.exports = sendEmail;
