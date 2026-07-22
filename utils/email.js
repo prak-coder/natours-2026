@@ -31,13 +31,18 @@ module.exports = class Email {
   async send(template, subject) {
     //actually send email
     //1.render a html based on pug template
-    const html = pug.renderFile(`${__dirname}/../views/emails/${template}.pug`);
+    const html = pug.renderFile(`${__dirname}/../views/email/${template}.pug`, {
+      firstName: this.firstName,
+      url: this.url,
+      subject,
+    });
     //2.define email options
     const mailOptions = {
       from: this.from,
       to: this.to,
       subject,
-      text: htmlToText.fromString(html),
+      html,
+      text: htmlToText.convert(html, { wordwrap: false }),
     };
 
     //3.create a transport and send Email
@@ -48,12 +53,3 @@ module.exports = class Email {
     await this.send('welcome', 'welcome to natours family');
   }
 };
-
-// const sendEmail = async (options) => {
-//   //1.Create a transporter - Configure your SMTP server or another supported transport method.
-
-//     //activate in gmail "less secure" app option dont use gmail bcs marked as spammer etc
-//     //use sendgrid or mailgun
-//     //mailtrap
-
-//   //2.Compose your message - Define the sender, recipient(s), subject, and content.
