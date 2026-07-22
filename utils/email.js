@@ -9,13 +9,24 @@ module.exports = class Email {
     this.to = user.email;
     this.firstName = user.name.split(' ')[0];
     this.url = url;
-    this.from = `K.Prakassh <${process.env.EMAIL_FROM}>`;
+    this.from =
+      process.env.NODE_ENV === 'production'
+        ? 'onboarding@resend.dev' // Resend's allowed sandbox address
+        : `K.Prakassh <${process.env.EMAIL_FROM}>`;
   }
 
   newTransport() {
     //production sendgrid
     if (process.env.NODE_ENV === 'production') {
-      return 1;
+      return nodemailer.createTransport({
+        host: 'smtp.resend.com',
+        port: 465,
+        secure: true, // Use SSL
+        auth: {
+          user: 'resend', // This must be the literal string 'resend'
+          pass: process.env.RESEND_API_KEY, // Your re_*** API key
+        },
+      });
     }
     //dev mailtrap
     return nodemailer.createTransport({
@@ -51,5 +62,12 @@ module.exports = class Email {
 
   async sendWelcome() {
     await this.send('welcome', 'welcome to natours family');
+  }
+
+  async sendPasswordReset() {
+    await this.send(
+      'passwordReset',
+      'Your password reset token(valid for only 10 minutes)',
+    );
   }
 };
