@@ -11,5 +11,6 @@ router.get(
   authController.protect,
   bookingController.getCheckoutSession,
 );
+router.route('/').get(authController.protect, bookingController.getAllBooking);
 
 module.exports = router;
