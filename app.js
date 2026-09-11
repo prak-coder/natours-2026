@@ -84,3 +84,5 @@ app.all('*', (req, res, next) => {
 app.use(globalErrorHandler);
 
 module.exports = app;
+
+//environ variables in postman reset after session expires
