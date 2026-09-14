@@ -47,11 +47,11 @@ app.use(
 //middle to serve static files
 app.use(express.static(`${__dirname}/public`));
 
-// //own middleware
-// app.use((req, res, next) => {
-//   console.log('Hello from Middle ware');
-//   next();
-// });
+//own middleware
+app.use((req, res, next) => {
+  console.log('Hello from Middle ware');
+  next();
+});
 
 //another middle ware
 app.use((req, res, next) => {
