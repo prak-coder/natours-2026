@@ -1,6 +1,8 @@
 const express = require('express');
 
 const app = express();
+const cors = require('cors');
+
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
@@ -15,6 +17,11 @@ const userRouter = require('./routes/userRouter');
 const reviewRouter = require('./routes/reviewRouter');
 const bookingRouter = require('./routes/bookingRouter');
 
+app.use(
+  cors({
+    origin: 'https://natours-react-frontend.vercel.app',
+  }),
+);
 //1)Global MIDDLEWARE
 //set security headers
 app.use(helmet());
