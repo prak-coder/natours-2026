@@ -7,13 +7,6 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const factory = require('./handleFactory');
 
-// 1) Configure Cloudinary
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
-
 // Store image in temporary RAM memory as a buffer
 const multerStorage = multer.memoryStorage();
 
@@ -36,39 +29,55 @@ exports.updateUserPhoto = upload.single('photo');
 exports.resizeUserPhoto = catchAsync(async (req, res, next) => {
   if (!req.file) return next();
 
-  // 1) Process the image from memory buffer using Sharp
-  const buffer = await sharp(req.file.buffer)
-    .resize(500, 500)
-    .toFormat('jpeg')
-    .jpeg({ quality: 90 })
-    .toBuffer();
-
-  // 2) Upload the processed buffer directly into Cloudinary
-  await new Promise((resolve, reject) => {
-    const uploadStream = cloudinary.uploader.upload_stream(
-      {
-        folder: 'natours/users', // Dynamic folders handling
-        public_id: `user-${req.user.id}-${Date.now()}`,
-        format: 'jpg',
-      },
-      (error, result) => {
-        if (error) {
-          return reject(
-            new AppError('Error uploading image to cloud storage.', 500),
-          );
-        }
-
-        // Overriding the local filename with the new persistent Cloudinary URL
-        req.file.filename = result.secure_url;
-        resolve();
-      },
-    );
-
-    uploadStream.end(buffer);
+  // 1) CONFIGURE CLOUDINARY HERE (Inside the middleware)
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
   });
 
-  next();
+  // Safety log to check variables in terminal (Remove this once it works!)
+  console.log('Cloud name check:', process.env.CLOUDINARY_CLOUD_NAME);
+
+  try {
+    // 2) Process the image from memory buffer using Sharp
+    const buffer = await sharp(req.file.buffer)
+      .resize(500, 500)
+      .toFormat('jpeg')
+      .jpeg({ quality: 90 })
+      .toBuffer();
+
+    // 3) Upload the processed buffer directly into Cloudinary
+    await new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          folder: 'natours/users',
+          public_id: `user-${req.user.id}-${Date.now()}`,
+          format: 'jpg',
+        },
+        (error, result) => {
+          if (error) {
+            console.error('Cloudinary Upload Error Details:', error);
+            return reject(error);
+          }
+
+          req.file.filename = result.secure_url;
+          resolve();
+        },
+      );
+
+      uploadStream.end(buffer);
+    });
+
+    next();
+  } catch (err) {
+    return next(
+      new AppError(`Image processing failed: ${err.message || err}`, 500),
+    );
+  }
 });
+
+// ... rest of your file (filterObj, updateMe, etc.) remains exactly the same!
 
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};
