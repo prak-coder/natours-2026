@@ -1,20 +1,20 @@
 const multer = require('multer');
 const sharp = require('sharp');
+const cloudinary = require('cloudinary').v2;
 
 const User = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const factory = require('./handleFactory');
 
-// const multerStorage = multer.diskStorage({
-//   destination: (req, file, cb) => {
-//     cb(null, 'public/img/users');
-//   },
-//   filename: (req, file, cb) => {
-//     const ext = file.mimetype.split('/')[1];
-//     cb(null, `user-${req.user.id}-${Date.now()}.${ext}`);
-//   },
-// });
+// 1) Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+// Store image in temporary RAM memory as a buffer
 const multerStorage = multer.memoryStorage();
 
 const multerFilter = (req, file, cb) => {
@@ -31,14 +31,42 @@ const upload = multer({
 });
 
 exports.updateUserPhoto = upload.single('photo');
+
+// Resize and stream directly to Cloudinary
 exports.resizeUserPhoto = catchAsync(async (req, res, next) => {
   if (!req.file) return next();
-  req.file.filename = `user-${req.user.id}-${Date.now()}.jpeg`;
-  await sharp(req.file.buffer)
+
+  // 1) Process the image from memory buffer using Sharp
+  const buffer = await sharp(req.file.buffer)
     .resize(500, 500)
     .toFormat('jpeg')
     .jpeg({ quality: 90 })
-    .toFile(`public/img/users/${req.file.filename}`);
+    .toBuffer();
+
+  // 2) Upload the processed buffer directly into Cloudinary
+  await new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        folder: 'natours/users', // Dynamic folders handling
+        public_id: `user-${req.user.id}-${Date.now()}`,
+        format: 'jpg',
+      },
+      (error, result) => {
+        if (error) {
+          return reject(
+            new AppError('Error uploading image to cloud storage.', 500),
+          );
+        }
+
+        // Overriding the local filename with the new persistent Cloudinary URL
+        req.file.filename = result.secure_url;
+        resolve();
+      },
+    );
+
+    uploadStream.end(buffer);
+  });
+
   next();
 });
 
@@ -56,18 +84,20 @@ exports.createUser = (req, res) => {
     message: 'this route is yet to be implemeted please use /signup instead',
   });
 };
-//update me seperate route bcs used by logged in user to update username and email not password
+
+// update me separate route bcs used by logged in user to update username and email not password
 exports.updateMe = catchAsync(async (req, res, next) => {
-  //1.create error if user posted password data
+  // 1.create error if user posted password data
   if (req.body.password || req.body.passwordConfirm) {
     return next(
       new AppError('this route is not for password use updateMyPassword'),
     );
   }
-  //2.update user document
-  //white listing bcs no want user to change role='admin'
+  // 2.update user document
+  // whitelisting bcs no want user to change role='admin'
   const filterBody = filterObj(req.body, 'name', 'email');
 
+  // When an image is uploaded, req.file.filename contains the secure Cloudinary link
   if (req.file) filterBody.photo = req.file.filename;
 
   const updatedUser = await User.findByIdAndUpdate(req.user.id, filterBody, {
@@ -83,7 +113,7 @@ exports.updateMe = catchAsync(async (req, res, next) => {
   });
 });
 
-//delete current user update active field to false
+// delete current user update active field to false
 exports.deleteMe = catchAsync(async (req, res, next) => {
   await User.findByIdAndUpdate(req.user.id, { active: false });
   res.status(200).json({
@@ -91,12 +121,14 @@ exports.deleteMe = catchAsync(async (req, res, next) => {
     data: null,
   });
 });
+
 exports.getMe = (req, res, next) => {
   req.params.id = req.user.id;
   next();
 };
+
 exports.getAllUsers = factory.getAll(User);
 exports.getUser = factory.getOne(User);
-//do not update password with this
+// do not update password with this
 exports.updateUser = factory.updateOne(User);
 exports.deleteUser = factory.deleteOne(User);
