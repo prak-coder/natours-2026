@@ -17,11 +17,21 @@ const userRouter = require('./routes/userRouter');
 const reviewRouter = require('./routes/reviewRouter');
 const bookingRouter = require('./routes/bookingRouter');
 
-app.use(
-  cors({
-    origin: 'https://natours-react-frontend.vercel.app',
-  }),
-);
+const corsOptions = {
+  origin: 'https://natours-react-frontend.vercel.app', // Your exact frontend URL
+  credentials: true, // This fixes the specific error you see
+  optionsSuccessStatus: 200,
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); // Handles preflight requests
+
+// app.use(
+//   cors({
+//     origin: 'https://natours-react-frontend.vercel.app',
+//   }),
+// );
+
 //1)Global MIDDLEWARE
 //set security headers
 app.use(helmet());
